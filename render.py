@@ -130,17 +130,20 @@ def screen_goal(data):
     d.line(pts, fill=RED, width=5)
     d.ellipse([pts[-1][0] - 7, pts[-1][1] - 7, pts[-1][0] + 7, pts[-1][1] + 7], fill=RED)
 
-    # progress bar bottom: miles run, with a tick at the goal
+    # bottom bar: this month's miles toward this month's share of what's left
     bx0, bx1 = 32, 768
-    scale = max(goal, ytd)
     d.rectangle([30, 410, 770, 432], outline=BLACK, width=2)
-    d.rectangle([bx0, 412, bx0 + (bx1 - bx0) * ytd / scale, 430], fill=GREEN)
-    if remaining > 0:   # before the goal: small blue tick where an even pace puts you today
-        px_ = bx0 + (bx1 - bx0) * pace_target / scale
-        d.line([px_, 406, px_, 436], fill=BLUE, width=3)
-    gx = bx0 + (bx1 - bx0) * goal / scale
-    d.line([gx, 404, gx, 436], fill=BLACK, width=4)
-    d.text((min(gx, bx1 - 16), 435), fmt(goal), font=F(12, "Bold"), fill=BLACK, anchor="ma")
+    if remaining == 0:
+        d.rectangle([bx0, 412, bx1, 430], fill=GREEN)
+        d.text(((bx0 + bx1) / 2, 421), "YEAR GOAL COMPLETE", font=F(15, "Black"), fill=BLACK, anchor="mm")
+    else:
+        m0 = today.replace(day=1).isoformat()
+        before = sum(v.get("run_mi", 0) for k, v in daily.items() if k.startswith(str(year)) and k < m0)
+        mtd = ytd - before
+        target = (goal - before) / (13 - today.month)   # what's left at the start of the month, split over months left
+        frac = min(mtd / target, 1) if target > 0 else 1
+        d.rectangle([bx0, 412, bx0 + (bx1 - bx0) * frac, 430], fill=GREEN)
+        d.text((bx0 + 8, 421), f"{today:%B}: {mtd:.0f} of {target:.0f} mi", font=F(15, "Black"), fill=BLACK, anchor="lm")
     return img
 
 # ---------------------------------------------------------------- 2. Streak calendar
