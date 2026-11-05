@@ -64,7 +64,17 @@ def screen_race(i):
     d.rectangle([0, 0, W, 44], fill=BLACK)
     d.text((20, 22), "RUNS TO REMEMBER", font=F(22, "ExtraBold"), fill=WHITE, anchor="lm")
     d.text((W - 20, 22), f"{i % len(RACES) + 1} of {len(RACES)}", font=F(18, "SemiBold"), fill=WHITE, anchor="rm")
-    _route(d, decode(r["poly"]), (30, 66, 410, 456))
+    legs = r.get("legs")
+    if legs:   # small legs on top (5K left, 10K right), main race below at ~75% height
+        small = {what: poly for _, what, _, poly in legs if poly}
+        for (label, x0, x1) in (("5K", 30, 210), ("10K", 230, 410)):
+            if label in small:
+                _route(d, decode(small[label]), (x0 + 34, 72, x1, 150), width=3, dot=4)
+                d.text((x0, 72), label, font=F(16, "ExtraBold"), fill=BLACK)
+        d.line([30, 162, 410, 162], fill=BLACK, width=1)
+        _route(d, decode(r["poly"]), (30, 174, 410, 456))
+    else:
+        _route(d, decode(r["poly"]), (30, 66, 410, 456))
     tx = 440
     d.text((tx, 62), r["name"], font=F(30, "ExtraBold"), fill=BLACK)
     d.text((tx, 102), f"{r['date']} · {r['where']}", font=F(16, "SemiBold"), fill=BLACK)
@@ -75,8 +85,7 @@ def screen_race(i):
         for j, (day, what, t, poly) in enumerate(r["legs"]):
             y = 316 + j * 30
             d.text((tx, y), day, font=F(17, "SemiBold"), fill=BLACK)
-            _route(d, decode(poly or r["poly"]), (tx + 42, y - 2, tx + 66, y + 22), width=2, dot=3)
-            d.text((tx + 80, y), what, font=F(17, "Bold"), fill=BLACK)
+            d.text((tx + 48, y), what, font=F(17, "Bold"), fill=BLACK)
             d.text((W - 30, y), t, font=F(17, "ExtraBold"), fill=BLACK, anchor="ra")
     else:
         _elev(d, r["elev"], (tx, 320, W - 30, 390))
