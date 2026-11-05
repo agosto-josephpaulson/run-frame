@@ -364,8 +364,9 @@ def main(data_path, out):
         img = quantize(img)
         img.save(out / f"{name}.png")
         imgs[name] = img
-    hour = dt.datetime.fromisoformat(data.get("now", data["today"] + "T12:00")).hour
-    slot = SCREENS[hour % len(SCREENS)][0]
+    now = dt.datetime.fromisoformat(data.get("now", data["today"] + "T12:00"))
+    half = now.hour * 2 + (now.minute >= 30)          # new screen every 30 minutes
+    slot = SCREENS[half % len(SCREENS)][0]
     imgs[slot].save(out / "current.png")
     imgs[slot].save(out / "current.jpg", quality=95, subsampling=0)
     (out / "index.html").write_text("<!doctype html><title>run-frame</title><body style='background:#ccc'>"
