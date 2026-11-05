@@ -85,6 +85,8 @@ def screen_goal(data):
 
     color = GREEN if delta >= 0 else RED
     label = f"{fmt(abs(delta))} mi {'AHEAD' if delta >= 0 else 'BEHIND'}"
+    if remaining == 0:
+        color, label = GREEN, f"+{fmt(ytd - goal)} mi PAST GOAL"
     bx = d.textbbox((36, 290), label, font=F(34, "ExtraBold"))
     d.rectangle([bx[0] - 10, bx[1] - 8, bx[2] + 10, bx[3] + 8], fill=color)
     d.text((36, 290), label, font=F(34, "ExtraBold"), fill=BLACK if color == GREEN else WHITE)
