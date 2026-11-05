@@ -177,11 +177,13 @@ def screen_calendar(data, layout=None):
     for day in sorted(pos):
         x, y = pos[day]
         box = [x, y, x + dia, y + dia]
-        if day > today:
-            d.ellipse(box, outline=BLACK, width=1)   # future: empty ring
-            continue
         v = daily.get(day.isoformat(), {})
         ran, lifted = v.get("run_mi", 0) > 0, v.get("lift", False)
+        if day > today or (day == today and not (ran or lifted)):
+            d.ellipse(box, outline=BLACK, width=1)   # future / today so far: empty ring
+            if day == today:
+                d.rectangle([x - 3, y - 3, x + dia + 3, y + dia + 3], outline=BLACK, width=2)
+            continue
         if ran and lifted: d.ellipse(box, fill=BOTH)
         elif ran: d.ellipse(box, fill=GREEN)
         elif lifted: d.ellipse(box, fill=BLUE)
