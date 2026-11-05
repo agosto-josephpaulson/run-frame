@@ -69,17 +69,21 @@ def screen_goal(data):
     header(d, f"{year} · {fmt(goal)} MILES", today.strftime("%a %b %-d"))
 
     # Big number
-    d.text((30, 70), fmt(ytd), font=F(150, "Black"), fill=BLACK, anchor="lt")
+    size = 150
+    while d.textlength(fmt(ytd), font=F(size, "Black")) > 360:
+        size -= 6
+    d.text((30, 70 + (150 - size) // 2), fmt(ytd), font=F(size, "Black"), fill=BLACK, anchor="lt")
     d.text((36, 236), f"of {fmt(goal)} miles", font=F(30, "SemiBold"), fill=BLACK, anchor="lt")
 
     color = GREEN if delta >= 0 else RED
-    label = f"{abs(delta):.0f} mi {'AHEAD' if delta >= 0 else 'BEHIND'}"
+    label = f"{fmt(abs(delta))} mi {'AHEAD' if delta >= 0 else 'BEHIND'}"
     bx = d.textbbox((36, 290), label, font=F(34, "ExtraBold"))
     d.rectangle([bx[0] - 10, bx[1] - 8, bx[2] + 10, bx[3] + 8], fill=color)
     d.text((36, 290), label, font=F(34, "ExtraBold"), fill=BLACK if color == GREEN else WHITE)
 
     if remaining == 0:
-        d.text((36, 352), "GOAL HIT. Every mile now is a bonus.", font=F(24, "SemiBold"), fill=BLACK)
+        d.text((36, 352), "GOAL HIT.", font=F(24, "ExtraBold"), fill=BLACK)
+        d.text((36, 384), "Every mile now is a bonus.", font=F(20, "Regular"), fill=BLACK)
     else:
       d.text((36, 352), f"Need {need_wk:.1f} mi/week to finish", font=F(24, "SemiBold"), fill=BLACK)
       d.text((36, 384), f"{days_left} days left · {remaining:.0f} mi to go", font=F(20, "Regular"), fill=BLACK)
@@ -262,7 +266,7 @@ def screen_countdown(data):
 
     d.text((30, 64), str(days), font=F(170, "Black"), fill=BLACK)
     d.text((36, 254), "days to go", font=F(34, "Bold"), fill=BLACK)
-    d.text((36, 300), f"{days // 7} weeks, {days % 7} days", font=F(22, "Regular"), fill=BLACK)
+    d.text((36, 300), f"{days // 7} weeks, {days % 7} day{'s' if days % 7 != 1 else ''}", font=F(22, "Regular"), fill=BLACK)
 
     # long-run bars (minutes) for recent weeks
     lr = r["long_runs"]  # list of {"week": "Oct 20", "min": 75}
