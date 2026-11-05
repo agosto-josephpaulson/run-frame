@@ -87,9 +87,18 @@ def screen_goal(data):
     label = f"{fmt(abs(delta))} mi {'AHEAD' if delta >= 0 else 'BEHIND'}"
     if remaining == 0:
         color, label = GREEN, f"+{fmt(ytd - goal)} mi PAST GOAL"
-    bx = d.textbbox((36, 290), label, font=F(34, "ExtraBold"))
-    d.rectangle([bx[0] - 10, bx[1] - 8, bx[2] + 10, bx[3] + 8], fill=color)
-    d.text((36, 290), label, font=F(34, "ExtraBold"), fill=BLACK if color == GREEN else WHITE)
+    # status icon + dark text on white (check = on/over pace, warning = behind)
+    cx, cy, r = 54, 309, 18
+    if color == GREEN:
+        d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=GREEN, outline=BLACK, width=2)
+        d.line([(cx - 9, cy + 1), (cx - 2, cy + 8), (cx + 10, cy - 7)], fill=BLACK, width=5, joint="curve")
+    else:
+        d.polygon([(cx, cy - r - 2), (cx + r + 2, cy + r - 1), (cx - r - 2, cy + r - 1)], fill=YELLOW, outline=BLACK, width=2)
+        d.text((cx, cy + 4), "!", font=F(26, "Black"), fill=BLACK, anchor="mm")
+    size = 32
+    while d.textlength(label, font=F(size, "ExtraBold")) > 300 and size > 20:
+        size -= 2
+    d.text((84, cy), label, font=F(size, "ExtraBold"), fill=BLACK, anchor="lm")
 
     if remaining == 0:
         d.text((36, 340), "GOAL HIT.", font=F(24, "ExtraBold"), fill=BLACK)
