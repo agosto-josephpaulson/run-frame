@@ -1,0 +1,21 @@
+{
+  "athlete_id": "i786211",
+  "timezone": "America/Chicago",
+  "goal_miles": 1000,
+  "lifetime_baseline_miles": 583.7,
+  "lifetime_baseline_through": "2025-11-05",
+  "race": {
+    "name": "Elm Creek Backyard Ultra",
+    "date": "2027-04-23",
+    "long_run_goal_min": 120,
+    "tagline": "Hours on feet beat everything."
+  },
+  "lines": [
+    "Show up. Do the work. Repeat.",
+    "Easy days easy. Hard days hard.",
+    "Consistency beats intensity.",
+    "One more loop.",
+    "The miles add up.",
+    "Run the mile you're in."
+  ]
+}
