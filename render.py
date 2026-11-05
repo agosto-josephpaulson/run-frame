@@ -130,11 +130,17 @@ def screen_goal(data):
     d.line(pts, fill=RED, width=5)
     d.ellipse([pts[-1][0] - 7, pts[-1][1] - 7, pts[-1][0] + 7, pts[-1][1] + 7], fill=RED)
 
-    # progress bar bottom
+    # progress bar bottom: miles run, with a tick at the goal
+    bx0, bx1 = 32, 768
+    scale = max(goal, ytd)
     d.rectangle([30, 410, 770, 432], outline=BLACK, width=2)
-    tx = 32 + 736 * min(pace_target / goal, 1)
-    d.rectangle([32, 412, tx, 430], fill=BLUE)
-    d.line([tx, 404, tx, 438], fill=BLACK, width=3)
+    d.rectangle([bx0, 412, bx0 + (bx1 - bx0) * ytd / scale, 430], fill=GREEN)
+    if remaining > 0:   # before the goal: small blue tick where an even pace puts you today
+        px_ = bx0 + (bx1 - bx0) * pace_target / scale
+        d.line([px_, 406, px_, 436], fill=BLUE, width=3)
+    gx = bx0 + (bx1 - bx0) * goal / scale
+    d.line([gx, 404, gx, 436], fill=BLACK, width=4)
+    d.text((min(gx, bx1 - 16), 435), fmt(goal), font=F(12, "Bold"), fill=BLACK, anchor="ma")
     return img
 
 # ---------------------------------------------------------------- 2. Streak calendar
