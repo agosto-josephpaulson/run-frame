@@ -30,13 +30,13 @@ RACES = [
          poly='osjZzwr`AyAeBw@Xi@Jm@Lm@Ba@Jw@Hc@?q@Lm@V_AR}@Wo@f@]fAm@xAi@|D_@l@Lj@_@pAMtAg@h@g@`BaAt@Qr@]h@Q|@N`@El@Hl@NVYp@YWUFUFg@L]?g@J[t@WlAV?b@UZ@XV^Nf@GVDFb@@j@TWZa@b@Kf@Qz@mAYi@JeAVKp@Gf@Yh@}@h@yAn@s@jAaAnAsAV}Ah@iAp@aAx@o@j@q@p@iAL{@ZoB^{At@uBLqA[E_Am@Wu@aAqAk@c@i@{@i@{@o@iBSs@LoASaCLmAHsALc@^i@b@s@b@u@r@mARkAS_AS}@JWX]d@cBLcANw@R]RU^Jx@t@t@v@^_A_@y@QyASi@Gw@Kk@B{@Nu@?gAGg@JgADk@Bi@Gi@Qo@?q@@uAI_AGs@?}@OIUc@KCOOKc@S[Qo@Yo@Ea@Mg@Ia@MY[[OUQ[Oi@AWPe@TWLc@Cs@Jc@F]De@SY?K@Sd@_@E{@Ei@Hs@k@mAAq@Ey@?}@o@_AqAc@{@BiAa@cAcCu@iDcAqCs@wBk@k@gAmA\\iAg@i@',
          elev=[7565,7672,8078,8439,8441,8374,8294,7838,7439,7080,6726,6914,6761,6878,6967,7327,7615,7811,7603,7399,7230,7490,7278,6864,6349,5838,5326,4847,4691,4484,4306,4227,4119,3986,3921]),
     dict(name="Twin Cities Marathon", where="Mpls to St Paul", note="Loony Challenge · 36 mi in 6:07:13",
-         legs=[("Sat", "10K", "1:02:37"), ("Sat", "5K", "34:49"), ("Sun", "Marathon", "4:29:47")], date="Oct 4, 2026",
+         legs=[("Sat", "10K", "1:02:37", 'i~lZhmyw@LJTPXTTPV?JPA`@PXVIH^LZRb@Ph@?p@?n@?d@@ZAb@?h@?j@?p@?f@?l@?n@?p@Ar@?j@?n@?j@Af@?r@B??c@?m@?k@?c@@o@Cs@?c@?o@@s@?_@?i@?q@?q@?e@?o@Am@@i@As@Mc@Ug@Qi@Ok@U_@UK[IYUc@[AC'), ("Sat", "5K", "34:49", 'i~lZhmyw@BBDDJHPLLJNJNJN@P@LNLRHTFTH\\HTJRLVHT@\\?`@?X?V?\\CPOB@\\FNHE?_@?[?SAY?Q@UAS?UAWKWMUKUIWEQEUISMUKOMEOASIMKMKSOKI'), ("Sun", "Marathon", "4:29:47", None)], date="Oct 4, 2026",
          stat="26.2 mi", time="4:29:47", gain=625,
          poly='{kmZlp|w@Ob@ENq@nA@ZIf@D^\\f@Xt@Vx@Rp@Pl@XPj@@d@FBf@?z@?bA?fA?~@?t@b@Rj@Pf@@Xb@Xd@n@@RTVt@d@Nf@El@Th@b@l@Nf@@`@Mp@PXc@CiARs@Xi@^[`@YT[@_AN{@Xs@f@Mb@Df@Tl@T\\RXi@j@Cf@Hf@IZi@Aa@@o@Bi@Dw@Fo@R]Dk@Um@Yi@W]Mm@Wm@Yo@Ho@Lk@Sw@U_AC_A_@o@Qy@X[h@?h@?f@Ld@h@f@X^DTm@J{@Gu@[m@g@[]i@g@_@m@Oe@Ye@f@Qx@OC?u@Fw@?aA?aA?_A?{@A_ACs@Os@Mq@Qq@Su@m@Ee@Jg@[o@Oq@Bk@@o@J[^i@Se@?k@Oe@@m@Ri@V]j@_@x@a@n@i@x@c@x@c@h@_@d@Qf@_@q@Gk@\\m@^k@`@k@b@a@^g@^o@Nm@Ri@f@o@d@Ob@Gb@Ol@I?_@Es@J]XY?k@?w@?o@?m@?aA?w@Cm@?_A@}@B}@A{@?gA?_A@}@?cACeA?_A@aA?aA?}@@_AAu@?y@?cAWy@Wo@U{@[g@e@Kc@[c@]',
          elev=[858,908,871,908,884,867,862,862,863,856,852,875,842,830,845,823,829,855,820,808,816,810,818,797,783,822,885,930,955,934,923,859]),
 ]
 
-def _route(d, pts, box):
+def _route(d, pts, box, width=4, dot=6):
     import math
     x0, y0, x1, y1 = box
     lat0 = sum(p[0] for p in pts) / len(pts)
@@ -46,9 +46,9 @@ def _route(d, pts, box):
     s = min((x1 - x0) / w, (y1 - y0) / h)
     ox = x0 + ((x1 - x0) - w * s) / 2; oy = y0 + ((y1 - y0) - h * s) / 2
     xy = [(ox + (x - min(xs)) * s, oy + (max(ys) - y) * s) for x, y in zip(xs, ys)]
-    d.line(xy, fill=BLUE, width=4, joint="curve")
+    d.line(xy, fill=BLUE, width=width, joint="curve")
     for (x, y), col in ((xy[-1], RED), (xy[0], GREEN)):
-        d.ellipse([x - 6, y - 6, x + 6, y + 6], fill=col, outline=BLACK, width=2)
+        d.ellipse([x - dot, y - dot, x + dot, y + dot], fill=col, outline=BLACK, width=1 if dot < 5 else 2)
 
 def _elev(d, vals, box):
     x0, y0, x1, y1 = box
@@ -72,10 +72,11 @@ def screen_race(i):
     d.text((tx, 230), r["time"], font=F(36, "ExtraBold"), fill=BLUE)
     d.text((tx, 274), f"+{r['gain']:,} ft climbed", font=F(20, "Bold"), fill=BLACK)
     if r.get("legs"):
-        for j, (day, what, t) in enumerate(r["legs"]):
+        for j, (day, what, t, poly) in enumerate(r["legs"]):
             y = 316 + j * 30
             d.text((tx, y), day, font=F(17, "SemiBold"), fill=BLACK)
-            d.text((tx + 48, y), what, font=F(17, "Bold"), fill=BLACK)
+            _route(d, decode(poly or r["poly"]), (tx + 42, y - 2, tx + 66, y + 22), width=2, dot=3)
+            d.text((tx + 80, y), what, font=F(17, "Bold"), fill=BLACK)
             d.text((W - 30, y), t, font=F(17, "ExtraBold"), fill=BLACK, anchor="ra")
     else:
         _elev(d, r["elev"], (tx, 320, W - 30, 390))
