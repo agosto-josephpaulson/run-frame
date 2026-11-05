@@ -46,6 +46,13 @@ def header(d, title, right=""):
     if right:
         d.text((W - 20, 22), right, font=F(18, "SemiBold"), fill=WHITE, anchor="rm")
 
+def footer(d, nxt):
+    if not nxt:
+        return
+    d.rectangle([0, 448, W, H], fill=BLACK)
+    d.text((20, 464), "NEXT", font=F(18, "Black"), fill=YELLOW, anchor="lm")
+    d.text((84, 464), f"{nxt['when']} · {nxt['what']}", font=F(18, "Bold"), fill=WHITE, anchor="lm")
+
 def fmt(n, dec=0):
     return f"{n:,.{dec}f}"
 
@@ -82,14 +89,14 @@ def screen_goal(data):
     d.text((36, 290), label, font=F(34, "ExtraBold"), fill=BLACK if color == GREEN else WHITE)
 
     if remaining == 0:
-        d.text((36, 352), "GOAL HIT.", font=F(24, "ExtraBold"), fill=BLACK)
-        d.text((36, 384), "Every mile now is a bonus.", font=F(20, "Regular"), fill=BLACK)
+        d.text((36, 340), "GOAL HIT.", font=F(24, "ExtraBold"), fill=BLACK)
+        d.text((36, 370), "Accruing bonus miles.", font=F(20, "Regular"), fill=BLACK)
     else:
-      d.text((36, 352), f"Need {need_wk:.1f} mi/week to finish", font=F(24, "SemiBold"), fill=BLACK)
-      d.text((36, 384), f"{days_left} days left · {remaining:.0f} mi to go", font=F(20, "Regular"), fill=BLACK)
+      d.text((36, 340), f"Need {need_wk:.1f} mi/week to finish", font=F(24, "SemiBold"), fill=BLACK)
+      d.text((36, 370), f"{days_left} days left · {remaining:.0f} mi to go", font=F(20, "Regular"), fill=BLACK)
 
     # Cumulative chart (right)
-    cx0, cy0, cx1, cy1 = 420, 80, 770, 400
+    cx0, cy0, cx1, cy1 = 420, 76, 770, 392
     d.line([cx0, cy1, cx1, cy1], fill=BLACK, width=2)
     d.line([cx0, cy0, cx0, cy1], fill=BLACK, width=2)
     top = max(goal * 1.1, ytd * 1.08)
@@ -110,15 +117,12 @@ def screen_goal(data):
         pts.append(px(i, cum))
     d.line(pts, fill=RED, width=5)
     d.ellipse([pts[-1][0] - 7, pts[-1][1] - 7, pts[-1][0] + 7, pts[-1][1] + 7], fill=RED)
-    for m, lab in [(0, "J"), (3, "A"), (6, "J"), (9, "O")]:
-        x = px((dt.date(year, m + 1, 1) - jan1).days, 0)[0]
-        d.text((x, cy1 + 8), lab, font=F(16, "SemiBold"), fill=BLACK, anchor="mt")
 
     # progress bar bottom
-    d.rectangle([30, 432, 770, 456], outline=BLACK, width=2)
-    d.rectangle([32, 434, 32 + 736 * min(ytd / goal, 1), 454], fill=RED)
+    d.rectangle([30, 410, 770, 432], outline=BLACK, width=2)
     tx = 32 + 736 * min(pace_target / goal, 1)
-    d.line([tx, 424, tx, 464], fill=BLACK, width=3)
+    d.rectangle([32, 412, tx, 430], fill=BLUE)
+    d.line([tx, 404, tx, 438], fill=BLACK, width=3)
     return img
 
 # ---------------------------------------------------------------- 2. Streak calendar
@@ -172,15 +176,16 @@ def screen_calendar(data, layout=None):
     run_days = lift_days = active = streak = best = 0
     for day in sorted(pos):
         x, y = pos[day]
-        if day > today:
-            continue
         box = [x, y, x + dia, y + dia]
+        if day > today:
+            d.ellipse(box, outline=BLACK, width=1)   # future: empty ring
+            continue
         v = daily.get(day.isoformat(), {})
         ran, lifted = v.get("run_mi", 0) > 0, v.get("lift", False)
         if ran and lifted: d.ellipse(box, fill=BOTH)
         elif ran: d.ellipse(box, fill=GREEN)
         elif lifted: d.ellipse(box, fill=BLUE)
-        else: d.ellipse(box, outline=BLACK, width=1)
+        else: d.ellipse(box, fill=BLACK)   # past, nothing logged
         run_days += ran; lift_days += lifted
         if ran or lifted:
             active += 1; streak += 1; best = max(best, streak)
@@ -190,7 +195,7 @@ def screen_calendar(data, layout=None):
             d.rectangle([x - 3, y - 3, x + dia + 3, y + dia + 3], outline=BLACK, width=2)
 
     ly = bottom + 14
-    for i, (k, lab) in enumerate([(GREEN, "Run"), (BLUE, "Lift"), (BOTH, "Run + lift"), (None, "Off")]):
+    for i, (k, lab) in enumerate([(GREEN, "Run"), (BLUE, "Lift"), (BOTH, "Run + lift"), (BLACK, "Missed / off"), (None, "Ahead")]):
         x = 30 + i * 150
         b = [x + 2, ly + 2, x + 14, ly + 14]
         if k: d.ellipse(b, fill=k)
@@ -220,7 +225,7 @@ def screen_latest(data):
     header(d, "LATEST RUN", when.strftime("%a %b %-d · %-I:%M %p"))
 
     # route box
-    bx0, by0, bx1, by1 = 24, 64, 384, 456
+    bx0, by0, bx1, by1 = 24, 60, 384, 436
     d.rectangle([bx0, by0, bx1, by1], outline=BLACK, width=2)
     pts = a.get("latlng") or []
     if len(pts) > 1:
@@ -271,7 +276,7 @@ def screen_countdown(data):
     # long-run bars (minutes) for recent weeks
     lr = r["long_runs"]  # list of {"week": "Oct 20", "min": 75}
     target = r.get("long_run_goal_min", 120)
-    cx0, cy0, cx1, cy1 = 400, 110, 776, 400
+    cx0, cy0, cx1, cy1 = 400, 104, 776, 372
     d.text((cx0, 64), "LONGEST RUN EACH WEEK", font=F(16, "Bold"), fill=BLUE)
     top = target * 1.6
     bw = (cx1 - cx0) / len(lr)
@@ -286,8 +291,8 @@ def screen_countdown(data):
         d.line([xx, ty, xx + 7, ty], fill=RED, width=3)
     d.text((cx1, ty - 6), f"goal {target} min", font=F(14, "Bold"), fill=RED, anchor="rb")
 
-    d.rectangle([30, 430, 770, 460], fill=YELLOW)
-    d.text((400, 445), r.get("tagline", "Hours on feet beat everything."), font=F(18, "Bold"), fill=BLACK, anchor="mm")
+    d.rectangle([30, 404, 770, 434], fill=YELLOW)
+    d.text((400, 419), r.get("tagline", "Goal: time on feet"), font=F(18, "Bold"), fill=BLACK, anchor="mm")
     return img
 
 # ---------------------------------------------------------------- 7. Inspiration
@@ -313,7 +318,7 @@ def screen_inspo(data):
     life = i["lifetime_miles"]
     passed = [c for c in CITIES if c[0] <= life]
     nxt = next((c for c in CITIES if c[0] > life), None)
-    d.text((420, 66), "LIFETIME ON FOOT", font=F(16, "Bold"), fill=BLUE)
+    d.text((420, 66), "LIFETIME ON FEET", font=F(16, "Bold"), fill=BLUE)
     d.text((420, 90), f"{fmt(life)} mi", font=F(64, "Black"), fill=BLACK)
     if passed:
         d.text((420, 166), f"Farther than home → {passed[-1][1]}", font=F(22, "SemiBold"), fill=BLACK)
@@ -324,11 +329,12 @@ def screen_inspo(data):
     d.text((30, 256), "BEST OF THIS YEAR", font=F(16, "Bold"), fill=BLUE)
     for k, (lab, val) in enumerate(i["bests"][:3]):
         x = 30 + k * 250
-        d.text((x, 282), val, font=F(40, "Black"), fill=BLACK)
-        d.text((x, 332), lab, font=F(18, "SemiBold"), fill=BLACK)
+        d.text((x, 276), val, font=F(40, "Black"), fill=BLACK)
+        d.text((x, 324), lab, font=F(18, "SemiBold"), fill=BLACK)
 
-    d.rectangle([0, 392, W, H], fill=RED)
-    d.text((400, 436), i.get("line", "The work is the reward."), font=F(30, "ExtraBold"), fill=WHITE, anchor="mm")
+    d.rectangle([0, 356, W, 448], fill=RED)
+    for k, ln in enumerate(i.get("mantra") or ["Run regularly", "Not too fast", "Mostly trails"]):
+        d.text((400, 375 + k * 27), ln, font=F(26, "ExtraBold"), fill=WHITE, anchor="mm")
     return img
 
 SCREENS = [("goal", screen_goal), ("calendar", screen_calendar), ("latest", screen_latest),
@@ -339,7 +345,9 @@ def main(data_path, out):
     out = Path(out); out.mkdir(parents=True, exist_ok=True)
     imgs = {}
     for name, fn in SCREENS:
-        img = quantize(fn(data))
+        img = fn(data)
+        footer(ImageDraw.Draw(img), data.get("next"))
+        img = quantize(img)
         img.save(out / f"{name}.png")
         imgs[name] = img
     hour = dt.datetime.fromisoformat(data.get("now", data["today"] + "T12:00")).hour
