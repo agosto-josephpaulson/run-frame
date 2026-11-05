@@ -364,6 +364,14 @@ def main(data_path, out):
         img = quantize(img)
         img.save(out / f"{name}.png")
         imgs[name] = img
+    names = [n for n, _ in SCREENS]
+    try:   # life clock / kids / life-in-months screens (no footer)
+        import life
+        life.TODAY = dt.date.fromisoformat(data["today"])
+        for name, img in life.render_all().items():
+            img.save(out / f"{name}.png"); imgs[name] = img; names.append(name)
+    except Exception as e:
+        print("life screens failed:", e)
     now = dt.datetime.fromisoformat(data.get("now", data["today"] + "T12:00"))
     half = now.hour * 2 + (now.minute >= 30)          # new screen every 30 minutes
     slot = SCREENS[half % len(SCREENS)][0]
@@ -371,7 +379,7 @@ def main(data_path, out):
     imgs[slot].save(out / "current.jpg", quality=95, subsampling=0)
     (out / "index.html").write_text("<!doctype html><title>run-frame</title><body style='background:#ccc'>"
         + f"<p>Updated {data.get('now','')} · showing <b>{slot}</b></p>"
-        + "".join(f"<p><img src='{n}.png' width=800></p>" for n, _ in SCREENS) + "</body>")
+        + "".join(f"<p><img src='{n}.png' width=800></p>" for n in names) + "</body>")
     print("current ->", slot)
 
 if __name__ == "__main__":
