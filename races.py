@@ -126,9 +126,9 @@ def screen_race(i):
             d.text((tx + 48, y), what, font=F(17, "Bold"), fill=BLACK)
             d.text((W - 30, y), t, font=F(17, "ExtraBold"), fill=BLACK, anchor="ra")
     else:
-        _elev(d, r["elev"], (tx, 320, W - 30, 390))
-    d.rectangle([tx, 410, W - 30, 450], fill=YELLOW)
-    d.text(((tx + W - 30) / 2, 430), r["note"], font=F(18, "ExtraBold"), fill=BLACK, anchor="mm")
+        _elev(d, r["elev"], (tx, 306, W - 30, 414))
+    d.rectangle([tx, 424, W - 30, 458], fill=YELLOW)
+    d.text(((tx + W - 30) / 2, 441), r["note"], font=F(18, "ExtraBold"), fill=BLACK, anchor="mm")
     return img
 
 if __name__ == "__main__":
