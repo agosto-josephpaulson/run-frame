@@ -372,6 +372,13 @@ def main(data_path, out):
             img.save(out / f"{name}.png"); imgs[name] = img; names.append(name)
     except Exception as e:
         print("life screens failed:", e)
+    try:   # runs to remember: one image per race; the worker picks which
+        import races
+        for i in range(len(races.RACES)):
+            img = quantize(races.screen_race(i))
+            img.save(out / f"race{i}.png"); imgs[f"race{i}"] = img; names.append(f"race{i}")
+    except Exception as e:
+        print("race screens failed:", e)
     now = dt.datetime.fromisoformat(data.get("now", data["today"] + "T12:00"))
     half = now.hour * 2 + (now.minute >= 30)          # new screen every 30 minutes
     slot = SCREENS[half % len(SCREENS)][0]
