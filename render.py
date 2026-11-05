@@ -59,6 +59,7 @@ def fmt(n, dec=0):
 # ---------------------------------------------------------------- 1. Goal
 def screen_goal(data):
     img, d = canvas()
+    fmt = lambda n, dec=0: f"{n:.{dec}f}"   # no thousands comma on this screen
     today = dt.date.fromisoformat(data["today"])
     year = today.year
     goal = data["goal_miles"]
