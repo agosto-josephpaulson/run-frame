@@ -199,7 +199,7 @@ def screen_calendar(data, layout=None):
         if ran and lifted: d.ellipse(box, fill=BOTH)
         elif ran: d.ellipse(box, fill=GREEN)
         elif lifted: d.ellipse(box, fill=BLUE)
-        else: d.ellipse(box, fill=BLACK)   # past, nothing logged
+        else: d.ellipse(box, outline=BLACK, width=1)   # past, nothing logged: plain ring
         run_days += ran; lift_days += lifted
         if ran or lifted:
             active += 1; streak += 1; best = max(best, streak)
@@ -209,8 +209,8 @@ def screen_calendar(data, layout=None):
             d.rectangle([x - 3, y - 3, x + dia + 3, y + dia + 3], outline=BLACK, width=2)
 
     ly = bottom + 14
-    for i, (k, lab) in enumerate([(GREEN, "Run"), (BLUE, "Lift"), (BOTH, "Run + lift"), (BLACK, "Missed / off"), (None, "Ahead")]):
-        x = 30 + i * 150
+    for i, (k, lab) in enumerate([(GREEN, "Run"), (BLUE, "Lift"), (BOTH, "Run + lift"), (None, "Rest / ahead")]):
+        x = 30 + i * 180
         b = [x + 2, ly + 2, x + 14, ly + 14]
         if k: d.ellipse(b, fill=k)
         else: d.ellipse(b, outline=BLACK, width=1)
